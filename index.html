@@ -1,1 +1,712 @@
-file:///Users/jayabulizi/Library/Application%20Support/Claude/local-agent-mode-sessions/64a4ef43-e093-45f1-96af-29ae5ca2e535/8590711a-53b1-4ea4-9178-325b32e34c51/local_62d95513-08f5-4085-bac2-1678063f7d6d/outputs/LASERLY_Investor_Form.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LASERLY Investor self-certification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0A1628;
+    --navy2: #1A2B4A;
+    --orange: #FF6B35;
+    --cream: #F8F9FA;
+    --grey: #8492A6;
+    --dark: #1E293B;
+    --border: #D5DBE1;
+    --err: #DC2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--dark);
+    background: #FFFFFF;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: var(--navy);
+    color: #FFFFFF;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 3px solid var(--orange);
+  }
+  .topbar .brand {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 3px;
+  }
+  .topbar .tagline {
+    font-size: 13px;
+    color: #00C2FF;
+    font-weight: 400;
+  }
+  .progress-wrap {
+    background: var(--cream);
+    padding: 10px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-bar {
+    height: 4px;
+    background: #E2E8F0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--orange);
+    width: 14%;
+    transition: width 0.3s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--grey);
+    text-align: right;
+  }
+  .container {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+  .form-card {
+    width: 100%;
+    max-width: 640px;
+  }
+  .step {
+    display: none;
+  }
+  .step.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .req { color: var(--err); }
+  .sub {
+    font-size: 14px;
+    color: var(--grey);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .form-group {
+    margin-bottom: 22px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 22px;
+  }
+  @media (max-width: 520px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+    font-family: inherit;
+    border: none;
+    border-bottom: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--dark);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  textarea {
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+    min-height: 110px;
+    resize: vertical;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--orange);
+  }
+  .char-count {
+    text-align: right;
+    font-size: 12px;
+    color: var(--grey);
+    margin-top: 4px;
+  }
+  .check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    background: #FFFFFF;
+    transition: all 0.15s;
+  }
+  .check-item:hover {
+    border-color: var(--orange);
+    background: #FFF8F5;
+  }
+  .check-item input[type="checkbox"] {
+    margin-top: 2px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--orange);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .check-item.checked {
+    border-color: var(--orange);
+    background: #FFF8F5;
+  }
+  .check-item .ctext {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--dark);
+  }
+  .actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  button {
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--orange);
+    color: #FFFFFF;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary:hover {
+    background: #E55A28;
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--navy);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .btn-secondary:hover {
+    background: var(--cream);
+  }
+  .help {
+    font-size: 12px;
+    color: var(--grey);
+  }
+  .field-error {
+    font-size: 12px;
+    color: var(--err);
+    margin-top: 6px;
+    display: none;
+  }
+  .field-error.show {
+    display: block;
+  }
+  .sig-wrap {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: #FAFAFA;
+    position: relative;
+    overflow: hidden;
+  }
+  #sigCanvas {
+    width: 100%;
+    height: 200px;
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .sig-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--grey);
+    font-size: 14px;
+    font-style: italic;
+    pointer-events: none;
+  }
+  .sig-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .clear-link {
+    color: var(--grey);
+    text-decoration: underline;
+    font-size: 13px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-weight: 400;
+  }
+  .thanks {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .thanks .check-circle {
+    width: 72px;
+    height: 72px;
+    background: var(--orange);
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+  }
+  .thanks h1 {
+    margin-bottom: 12px;
+  }
+  .thanks p {
+    color: var(--grey);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .summary {
+    text-align: left;
+    margin-top: 32px;
+    padding: 20px;
+    background: var(--cream);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .summary h3 {
+    font-size: 14px;
+    color: var(--navy);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .summary .row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .summary .row:last-child { border-bottom: none; }
+  .summary .lbl {
+    color: var(--grey);
+    font-weight: 500;
+  }
+  .summary .val {
+    color: var(--dark);
+    word-break: break-word;
+  }
+  .footer-info {
+    text-align: center;
+    padding: 24px;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--grey);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">LASERLY</div>
+  <div class="tagline">Investor self-certification</div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+  <div id="progressLabel" class="progress-label">Step 1 of 7</div>
+</div>
+
+<div class="container">
+  <div class="form-card">
+
+    <!-- STEP 1: PERSONAL -->
+    <div class="step active" data-step="1">
+      <h1>Please enter your details. <span class="req">*</span></h1>
+      <p class="sub">We use this to confirm who is requesting access to the LASERLY pre-seed materials.</p>
+      <div class="form-row">
+        <div>
+          <label>First name <span class="req">*</span></label>
+          <input type="text" id="firstName" placeholder="Jane" required>
+          <div class="field-error" id="err-firstName">Required</div>
+        </div>
+        <div>
+          <label>Last name <span class="req">*</span></label>
+          <input type="text" id="lastName" placeholder="Doe" required>
+          <div class="field-error" id="err-lastName">Required</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="jane@example.com" required>
+        <div class="field-error" id="err-email">Valid email required</div>
+      </div>
+      <div class="form-group">
+        <label>Company</label>
+        <input type="text" id="company" placeholder="Acme Capital">
+      </div>
+      <div class="actions">
+        <button class="btn-primary" onclick="goNext(1)">Next →</button>
+        <span class="help">press Enter ↵</span>
+      </div>
+    </div>
+
+    <!-- STEP 2: SECTOR -->
+    <div class="step" data-step="2">
+      <h1>Do you have a preference for a sector, specific thesis, or are you agnostic?</h1>
+      <div class="form-group">
+        <textarea id="sector" maxlength="300" placeholder="Your answer here..."></textarea>
+        <div class="char-count"><span id="sectorCount">0</span>/300</div>
+      </div>
+      <div class="actions">
+        <button class="btn-secondary" onclick="goBack(2)">← Back</button>
+        <button class="btn-primary" onclick="goNext(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: CONTEXT -->
+    <div class="step" data-step="3">
+      <h1>How did you hear about LASERLY, or which materials are you requesting?</h1>
+      <p class="sub">If a specific intro or pitch event is the reason, please mention it here.</p>
+      <div class="form-group">
+        <textarea id="context" maxlength="300" placeholder="e.g. introduction from [name], NorthInvest pitch night, deck on request..."></textarea>
+        <div class="char-count"><span id="contextCount">0</span>/300</div>
+      </div>
+      <div class="actions">
+        <button class="btn-secondary" onclick="goBack(3)">← Back</button>
+        <button class="btn-primary" onclick="goNext(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: FCA -->
+    <div class="step" data-step="4">
+      <h1>Financial Conduct Authority investor requirements <span class="req">*</span></h1>
+      <p class="sub">High-Net-Worth or Sophisticated Investor self-certification.<br>Please select ALL that have applied to you in the last 24 months.</p>
+      <div class="check-list" id="fcaList">
+        <label class="check-item"><input type="checkbox" value="pe" class="fca-cb">
+          <span class="ctext">Worked in private equity, or in the provision of finance for small and medium enterprises.</span></label>
+        <label class="check-item"><input type="checkbox" value="director" class="fca-cb">
+          <span class="ctext">Been the director of a company with an annual turnover of at least £1 million.</span></label>
+        <label class="check-item"><input type="checkbox" value="multi-invest" class="fca-cb">
+          <span class="ctext">Made two or more investments in an unlisted company.</span></label>
+        <label class="check-item"><input type="checkbox" value="angel-network" class="fca-cb">
+          <span class="ctext">Been a member of a network or syndicate of business angels for more than six months.</span></label>
+        <label class="check-item"><input type="checkbox" value="income" class="fca-cb">
+          <span class="ctext">Had an annual income of £170,000 or more (excluding one-off pension payments).</span></label>
+        <label class="check-item"><input type="checkbox" value="assets" class="fca-cb">
+          <span class="ctext">Had net assets of £430,000 or more (excluding primary residence, pension, and contracts of insurance).</span></label>
+        <label class="check-item"><input type="checkbox" value="none" class="fca-cb" id="fcaNone">
+          <span class="ctext">None of the above.</span></label>
+      </div>
+      <div class="field-error" id="err-fca">Please select at least one option.</div>
+      <div class="actions">
+        <button class="btn-secondary" onclick="goBack(4)">← Back</button>
+        <button class="btn-primary" onclick="goNext(4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: TICKET -->
+    <div class="step" data-step="5">
+      <h1>What is your typical investment ticket size?</h1>
+      <p class="sub">Approximate range and preferred currency.</p>
+      <div class="form-group">
+        <textarea id="ticket" maxlength="300" placeholder="e.g. £25k to £50k under SEIS / EIS"></textarea>
+        <div class="char-count"><span id="ticketCount">0</span>/300</div>
+      </div>
+      <div class="actions">
+        <button class="btn-secondary" onclick="goBack(5)">← Back</button>
+        <button class="btn-primary" onclick="goNext(5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 6: SIGNATURE -->
+    <div class="step" data-step="6">
+      <h1>Please sign here <span class="req">*</span></h1>
+      <p class="sub">To confirm your submission and self-certification.</p>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-hint" id="sigHint">Sign with your mouse, trackpad or finger</div>
+      </div>
+      <div class="sig-actions">
+        <button class="clear-link" onclick="clearSig()">Clear signature</button>
+        <span class="help">By signing, you confirm the above is accurate.</span>
+      </div>
+      <div class="field-error" id="err-sig" style="margin-top: 12px;">Please sign before submitting.</div>
+      <div class="actions" style="margin-top: 24px;">
+        <button class="btn-secondary" onclick="goBack(6)">← Back</button>
+        <button class="btn-primary" onclick="submitForm()">Submit ✓</button>
+      </div>
+    </div>
+
+    <!-- STEP 7: THANKS -->
+    <div class="step" data-step="7">
+      <div class="thanks">
+        <div class="check-circle">✓</div>
+        <h1>Thank you.</h1>
+        <p>Your self-certification has been recorded.</p>
+        <p>Your default mail client should have opened with a pre-filled email to LASERLY.<br>If it did not, please copy the details below and email them to <strong>jay@laserly.tech</strong>.</p>
+        <div class="summary" id="summary"></div>
+        <div class="actions" style="justify-content: center; margin-top: 28px;">
+          <button class="btn-primary" onclick="copySummary()">Copy details to clipboard</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer-info">
+  This communication is directed only at certified High-Net-Worth Individuals and self-certified Sophisticated Investors under articles 48 and 50/50A of the Financial Services and Markets Act 2000 (Financial Promotion) Order 2005. Investments in early-stage private companies are illiquid and your capital is at risk. Issued by LASERLY Technology Ltd, United Kingdom.
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 7;
+
+  function updateProgress() {
+    const pct = Math.round((currentStep / totalSteps) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = 'Step ' + currentStep + ' of ' + totalSteps;
+  }
+
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.querySelector('.step[data-step="' + n + '"]').classList.add('active');
+    currentStep = n;
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goBack(from) {
+    showStep(from - 1);
+  }
+
+  function goNext(from) {
+    if (!validateStep(from)) return;
+    showStep(from + 1);
+  }
+
+  function validateStep(n) {
+    let ok = true;
+    if (n === 1) {
+      const fn = document.getElementById('firstName').value.trim();
+      const ln = document.getElementById('lastName').value.trim();
+      const em = document.getElementById('email').value.trim();
+      document.getElementById('err-firstName').classList.toggle('show', !fn);
+      document.getElementById('err-lastName').classList.toggle('show', !ln);
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+      document.getElementById('err-email').classList.toggle('show', !emailOk);
+      ok = fn && ln && emailOk;
+    }
+    if (n === 4) {
+      const any = document.querySelectorAll('.fca-cb:checked').length > 0;
+      document.getElementById('err-fca').classList.toggle('show', !any);
+      ok = any;
+    }
+    return ok;
+  }
+
+  // Character counters
+  ['sector', 'context', 'ticket'].forEach(id => {
+    const ta = document.getElementById(id);
+    const cnt = document.getElementById(id + 'Count');
+    ta.addEventListener('input', () => { cnt.textContent = ta.value.length; });
+  });
+
+  // FCA checkbox UX: "None" toggles others off; selecting any other unchecks "None"
+  document.querySelectorAll('.fca-cb').forEach(cb => {
+    cb.addEventListener('change', e => {
+      e.target.closest('.check-item').classList.toggle('checked', e.target.checked);
+      if (e.target.id === 'fcaNone' && e.target.checked) {
+        document.querySelectorAll('.fca-cb').forEach(other => {
+          if (other.id !== 'fcaNone') {
+            other.checked = false;
+            other.closest('.check-item').classList.remove('checked');
+          }
+        });
+      } else if (e.target.id !== 'fcaNone' && e.target.checked) {
+        const none = document.getElementById('fcaNone');
+        none.checked = false;
+        none.closest('.check-item').classList.remove('checked');
+      }
+    });
+  });
+
+  // Enter key advances
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey && currentStep < 6) {
+      const ae = document.activeElement;
+      if (ae && ae.tagName === 'TEXTAREA') return;
+      e.preventDefault();
+      goNext(currentStep);
+    }
+  });
+
+  // Signature canvas
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+  const sigHint = document.getElementById('sigHint');
+  let drawing = false;
+  let sigDrawn = false;
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#0A1628';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches && e.touches[0]) {
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    sigDrawn = true;
+    sigHint.style.display = 'none';
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+  function moveDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  }
+  function endDraw() { drawing = false; }
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', moveDraw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', startDraw);
+  canvas.addEventListener('touchmove', moveDraw);
+  canvas.addEventListener('touchend', endDraw);
+
+  function clearSig() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    sigDrawn = false;
+    sigHint.style.display = 'block';
+  }
+  // Resize when step 6 is shown
+  const obs = new MutationObserver(() => {
+    if (document.querySelector('.step[data-step="6"]').classList.contains('active')) {
+      setTimeout(resizeCanvas, 50);
+    }
+  });
+  obs.observe(document.querySelector('.step[data-step="6"]'), { attributes: true });
+
+  let lastSummaryText = '';
+
+  function submitForm() {
+    if (!sigDrawn) {
+      document.getElementById('err-sig').classList.add('show');
+      return;
+    }
+    document.getElementById('err-sig').classList.remove('show');
+
+    const data = {
+      'First name': document.getElementById('firstName').value.trim(),
+      'Last name': document.getElementById('lastName').value.trim(),
+      'Email': document.getElementById('email').value.trim(),
+      'Company': document.getElementById('company').value.trim() || '(not provided)',
+      'Sector preference': document.getElementById('sector').value.trim() || '(not provided)',
+      'Context / introduction': document.getElementById('context').value.trim() || '(not provided)',
+      'FCA self-certification': [...document.querySelectorAll('.fca-cb:checked')].map(cb => cb.parentElement.querySelector('.ctext').textContent.trim()).join('; ') || '(none)',
+      'Typical ticket size': document.getElementById('ticket').value.trim() || '(not provided)',
+      'Signed': 'Yes, signature captured on ' + new Date().toLocaleString(),
+    };
+
+    // Render summary
+    const sumEl = document.getElementById('summary');
+    sumEl.innerHTML = '<h3>Submission summary</h3>' + Object.entries(data).map(([k, v]) =>
+      '<div class="row"><div class="lbl">' + k + '</div><div class="val">' + escapeHtml(v) + '</div></div>'
+    ).join('');
+
+    lastSummaryText = 'LASERLY Investor Self-Certification\n\n' +
+      Object.entries(data).map(([k, v]) => k + ': ' + v).join('\n');
+
+    const subject = 'LASERLY Investor self-certification, ' + data['First name'] + ' ' + data['Last name'];
+    const body = lastSummaryText;
+    const mailto = 'mailto:jay@laserly.tech?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    window.location = mailto;
+
+    showStep(7);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function copySummary() {
+    navigator.clipboard.writeText(lastSummaryText).then(() => {
+      const btn = event.target;
+      const orig = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  updateProgress();
+</script>
+
+</body>
+</html>
