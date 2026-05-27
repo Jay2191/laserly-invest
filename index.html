@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LASERLY Investor self-certification</title>
-<!-- BUILD: v2-sig-fix -->
+<!-- BUILD: v3-typed-sig -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
 <style>
   :root {
     --navy: #0A1628;
@@ -78,15 +78,41 @@
   .help { font-size: 12px; color: var(--grey); }
   .field-error { font-size: 12px; color: var(--err); margin-top: 6px; display: none; }
   .field-error.show { display: block; }
-  .sig-wrap { border: 1.5px solid var(--border); border-radius: 6px;
-    background: #FFFFFF; position: relative; overflow: hidden; }
-  #sigCanvas { width: 100%; height: 200px; display: block; cursor: crosshair;
-    touch-action: none; background: #FFFFFF; }
-  .sig-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    color: var(--grey); font-size: 14px; font-style: italic; pointer-events: none; }
-  .sig-actions { margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
-  .clear-link { color: var(--grey); text-decoration: underline; font-size: 13px;
-    background: none; border: none; padding: 0; cursor: pointer; font-weight: 400; }
+  /* Typed signature */
+  .sig-input {
+    width: 100%; padding: 14px 16px; font-size: 17px; font-family: inherit;
+    border: 1.5px solid var(--border); border-radius: 6px; background: #FFFFFF;
+    color: var(--dark); outline: none; transition: border-color 0.2s;
+  }
+  .sig-input:focus { border-color: var(--orange); }
+  .sig-preview {
+    margin-top: 14px;
+    background: #FFFFFF;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 24px 14px;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .sig-preview-label {
+    font-size: 11px;
+    color: var(--grey);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .sig-preview-text {
+    font-family: 'Caveat', 'Brush Script MT', cursive;
+    font-size: 44px;
+    line-height: 1.1;
+    color: var(--navy);
+    min-height: 50px;
+    word-break: break-word;
+  }
+  .sig-preview-text.empty { color: #C9CFD7; font-style: italic; font-size: 22px; font-family: 'Inter', sans-serif; }
+  .sig-preview-meta { margin-top: 10px; font-size: 11px; color: var(--grey); border-top: 1px dashed #E2E8F0; padding-top: 8px; }
   .thanks { text-align: center; padding: 40px 20px; }
   .thanks .check-circle { width: 72px; height: 72px; background: var(--orange);
     color: #FFFFFF; border-radius: 50%; display: flex; align-items: center;
@@ -116,6 +142,7 @@
     <input type="hidden" name="full_name" id="full_name">
     <input type="hidden" name="message" id="message">
     <input type="hidden" name="signature_data" id="signature_data">
+    <input type="hidden" name="signed_at" id="signed_at">
     <input type="hidden" name="_subject" value="LASERLY Investor self-certification">
 
     <!-- STEP 1: PERSONAL -->
@@ -222,19 +249,22 @@
       </div>
     </div>
 
-    <!-- STEP 6: SIGNATURE + CONSENT -->
+    <!-- STEP 6: TYPED SIGNATURE + CONSENT -->
     <div class="step" data-step="6">
-      <h1>Please sign here <span class="req">*</span></h1>
-      <p class="sub">To confirm your submission and self-certification.</p>
-      <div class="sig-wrap">
-        <canvas id="sigCanvas"></canvas>
-        <div class="sig-hint" id="sigHint">Sign with your mouse, trackpad or finger</div>
+      <h1>Sign here <span class="req">*</span></h1>
+      <p class="sub">Type your full legal name below. Your typed name, together with the date and your IP-stamped consent below, forms your electronic signature for this self-certification.</p>
+
+      <div class="form-group">
+        <label>Type your full name to sign <span class="req">*</span></label>
+        <input type="text" id="sigName" class="sig-input" placeholder="e.g. Jane Doe" autocomplete="off" required>
+        <div class="field-error" id="err-sig">Please type your full name to sign.</div>
       </div>
-      <div class="sig-actions">
-        <button type="button" class="clear-link" onclick="clearSig()">Clear signature</button>
-        <span class="help">By signing, you confirm the above is accurate.</span>
+
+      <div class="sig-preview" aria-live="polite">
+        <div class="sig-preview-label">Signature preview</div>
+        <div class="sig-preview-text empty" id="sigPreview">Your signature will appear here</div>
+        <div class="sig-preview-meta" id="sigMeta">Date will be recorded on submission.</div>
       </div>
-      <div class="field-error" id="err-sig" style="margin-top: 12px;">Please sign before submitting.</div>
 
       <div class="check-list" style="margin-top: 24px;">
         <label class="check-item" id="consentItem">
@@ -269,7 +299,7 @@
 </div>
 
 <script>
-  /* BUILD: v2-sig-fix - if you see this comment in your deployed file's source, you're on the fixed version */
+  /* BUILD: v3-typed-sig - typed signature, no canvas */
   let currentStep = 1;
   const totalSteps = 7;
 
@@ -284,6 +314,20 @@
     currentStep = n;
     updateProgress();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // When entering step 6, prefill the signature with first+last from step 1 if blank
+    if (n === 6) {
+      const sigInput = document.getElementById('sigName');
+      if (!sigInput.value.trim()) {
+        const fn = document.getElementById('firstName').value.trim();
+        const ln = document.getElementById('lastName').value.trim();
+        const full = (fn + ' ' + ln).trim();
+        if (full) {
+          sigInput.value = full;
+          updateSigPreview();
+        }
+      }
+      setTimeout(() => sigInput.focus(), 200);
+    }
   }
   function goBack(from) { showStep(from - 1); }
   function goNext(from) { if (!validateStep(from)) return; showStep(from + 1); }
@@ -327,6 +371,21 @@
     if (e.target.checked) document.getElementById('err-consent').classList.remove('show');
   });
 
+  /* ===== TYPED SIGNATURE PREVIEW ===== */
+  function updateSigPreview() {
+    const v = document.getElementById('sigName').value.trim();
+    const preview = document.getElementById('sigPreview');
+    if (v) {
+      preview.textContent = v;
+      preview.classList.remove('empty');
+      document.getElementById('err-sig').classList.remove('show');
+    } else {
+      preview.textContent = 'Your signature will appear here';
+      preview.classList.add('empty');
+    }
+  }
+  document.getElementById('sigName').addEventListener('input', updateSigPreview);
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey && currentStep < 6) {
       const ae = document.activeElement;
@@ -336,110 +395,15 @@
     }
   });
 
-  /* ===== SIGNATURE CANVAS (white background + auto-crop on export) ===== */
-  const canvas = document.getElementById('sigCanvas');
-  const ctx = canvas.getContext('2d');
-  const sigHint = document.getElementById('sigHint');
-  let drawing = false;
-  let sigDrawn = false;
-  let cssW = 0, cssH = 0;
-  let sigDpr = 1;
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
-  function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    sigDpr = window.devicePixelRatio || 1;
-    cssW = rect.width;
-    cssH = rect.height;
-    canvas.width  = Math.max(1, Math.round(cssW * sigDpr));
-    canvas.height = Math.max(1, Math.round(cssH * sigDpr));
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(sigDpr, sigDpr);
-    // Solid white background so the exported PNG is never transparent
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, cssW, cssH);
-    ctx.strokeStyle = '#0A1628';
-    ctx.lineWidth = 2.2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    if (e.touches && e.touches[0]) return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  }
-  function trackPoint(p) {
-    if (p.x < minX) minX = p.x;
-    if (p.y < minY) minY = p.y;
-    if (p.x > maxX) maxX = p.x;
-    if (p.y > maxY) maxY = p.y;
-  }
-  function startDraw(e) {
-    e.preventDefault();
-    drawing = true; sigDrawn = true;
-    sigHint.style.display = 'none';
-    const p = getPos(e); trackPoint(p);
-    ctx.beginPath(); ctx.moveTo(p.x, p.y);
-  }
-  function moveDraw(e) {
-    if (!drawing) return;
-    e.preventDefault();
-    const p = getPos(e); trackPoint(p);
-    ctx.lineTo(p.x, p.y); ctx.stroke();
-  }
-  function endDraw() { drawing = false; }
-
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', moveDraw);
-  canvas.addEventListener('mouseup', endDraw);
-  canvas.addEventListener('mouseleave', endDraw);
-  canvas.addEventListener('touchstart', startDraw);
-  canvas.addEventListener('touchmove', moveDraw);
-  canvas.addEventListener('touchend', endDraw);
-
-  function clearSig() {
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, cssW, cssH);
-    ctx.strokeStyle = '#0A1628';
-    sigDrawn = false;
-    minX = Infinity; minY = Infinity; maxX = -Infinity; maxY = -Infinity;
-    sigHint.style.display = 'block';
-  }
-
-  // Crop to drawn bounding box + padding, ensure solid white background
-  function exportSignaturePng() {
-    try {
-      if (!isFinite(minX)) return canvas.toDataURL('image/png');
-      const pad = 14;
-      const x0 = Math.max(0, Math.floor((minX - pad) * sigDpr));
-      const y0 = Math.max(0, Math.floor((minY - pad) * sigDpr));
-      const x1 = Math.min(canvas.width,  Math.ceil((maxX + pad) * sigDpr));
-      const y1 = Math.min(canvas.height, Math.ceil((maxY + pad) * sigDpr));
-      const w = Math.max(1, x1 - x0);
-      const h = Math.max(1, y1 - y0);
-      const off = document.createElement('canvas');
-      off.width = w; off.height = h;
-      const octx = off.getContext('2d');
-      octx.fillStyle = '#FFFFFF';
-      octx.fillRect(0, 0, w, h);
-      octx.drawImage(canvas, x0, y0, w, h, 0, 0, w, h);
-      return off.toDataURL('image/png');
-    } catch (e) {
-      return canvas.toDataURL('image/png');
-    }
-  }
-
-  const obs = new MutationObserver(() => {
-    if (document.querySelector('.step[data-step="6"]').classList.contains('active')) {
-      setTimeout(resizeCanvas, 50);
-    }
-  });
-  obs.observe(document.querySelector('.step[data-step="6"]'), { attributes: true });
-
   async function submitForm() {
-    if (!sigDrawn) { document.getElementById('err-sig').classList.add('show'); return; }
+    const sig = document.getElementById('sigName').value.trim();
+    if (!sig) {
+      document.getElementById('err-sig').classList.add('show');
+      document.getElementById('sigName').focus();
+      return;
+    }
     document.getElementById('err-sig').classList.remove('show');
+
     const consent = document.getElementById('consent').checked;
     document.getElementById('err-consent').classList.toggle('show', !consent);
     if (!consent) return;
@@ -457,8 +421,13 @@
     if (ticket)  parts.push('Ticket size: ' + ticket);
     document.getElementById('message').value = parts.join('\n\n');
 
-    try { document.getElementById('signature_data').value = exportSignaturePng(); }
-    catch (e) { /* canvas tainted — skip */ }
+    // Typed signature payload: human-readable line that lands in your email
+    const now = new Date();
+    const stamp = now.toISOString();
+    const localStamp = now.toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' });
+    document.getElementById('signature_data').value =
+      'Electronically signed by: ' + sig + ' on ' + localStamp + ' (' + stamp + ')';
+    document.getElementById('signed_at').value = stamp;
 
     const form = document.getElementById('investorForm');
     const submitBtn = document.getElementById('submitBtn');
