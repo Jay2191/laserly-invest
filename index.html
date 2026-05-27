@@ -223,6 +223,11 @@
     background: #E55A28;
     transform: translateY(-1px);
   }
+  .btn-primary:disabled {
+    background: #B8B8B8;
+    cursor: not-allowed;
+    transform: none;
+  }
   .btn-secondary {
     background: transparent;
     color: var(--navy);
@@ -312,37 +317,6 @@
     line-height: 1.6;
     margin-bottom: 8px;
   }
-  .summary {
-    text-align: left;
-    margin-top: 32px;
-    padding: 20px;
-    background: var(--cream);
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  .summary h3 {
-    font-size: 14px;
-    color: var(--navy);
-    margin-bottom: 10px;
-    font-weight: 600;
-  }
-  .summary .row {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 12px;
-    padding: 4px 0;
-    border-bottom: 1px solid #E2E8F0;
-  }
-  .summary .row:last-child { border-bottom: none; }
-  .summary .lbl {
-    color: var(--grey);
-    font-weight: 500;
-  }
-  .summary .val {
-    color: var(--dark);
-    word-break: break-word;
-  }
   .footer-info {
     text-align: center;
     padding: 24px;
@@ -368,6 +342,13 @@
 
 <div class="container">
   <div class="form-card">
+  <form id="investorForm" action="https://formspree.io/f/xlgvajly" method="POST" novalidate>
+
+    <!-- Hidden fields (populated on submit) -->
+    <input type="hidden" name="full_name" id="full_name">
+    <input type="hidden" name="message" id="message">
+    <input type="hidden" name="signature_data" id="signature_data">
+    <input type="hidden" name="_subject" value="LASERLY Investor self-certification">
 
     <!-- STEP 1: PERSONAL -->
     <div class="step active" data-step="1">
@@ -376,27 +357,33 @@
       <div class="form-row">
         <div>
           <label>First name <span class="req">*</span></label>
-          <input type="text" id="firstName" placeholder="Jane" required>
+          <input type="text" id="firstName" name="first_name" placeholder="Jane" required>
           <div class="field-error" id="err-firstName">Required</div>
         </div>
         <div>
           <label>Last name <span class="req">*</span></label>
-          <input type="text" id="lastName" placeholder="Doe" required>
+          <input type="text" id="lastName" name="last_name" placeholder="Doe" required>
           <div class="field-error" id="err-lastName">Required</div>
         </div>
       </div>
       <div class="form-group">
         <label>Email <span class="req">*</span></label>
-        <input type="email" id="email" placeholder="jane@example.com" required>
+        <input type="email" id="email" name="email" placeholder="jane@example.com" required>
         <div class="field-error" id="err-email">Valid email required</div>
       </div>
-      <div class="form-group">
-        <label>Company</label>
-        <input type="text" id="company" placeholder="Acme Capital">
+      <div class="form-row">
+        <div>
+          <label>Organisation</label>
+          <input type="text" id="company" name="organisation" placeholder="Acme Capital">
+        </div>
+        <div>
+          <label>Role / job title</label>
+          <input type="text" id="role" name="role" placeholder="Partner, Angel, etc.">
+        </div>
       </div>
       <div class="actions">
-        <button class="btn-primary" onclick="goNext(1)">Next →</button>
-        <span class="help">press Enter ↵</span>
+        <button type="button" class="btn-primary" onclick="goNext(1)">Next &rarr;</button>
+        <span class="help">press Enter &crarr;</span>
       </div>
     </div>
 
@@ -404,12 +391,12 @@
     <div class="step" data-step="2">
       <h1>Do you have a preference for a sector, specific thesis, or are you agnostic?</h1>
       <div class="form-group">
-        <textarea id="sector" maxlength="300" placeholder="Your answer here..."></textarea>
+        <textarea id="sector" name="sector_preference" maxlength="300" placeholder="Your answer here..."></textarea>
         <div class="char-count"><span id="sectorCount">0</span>/300</div>
       </div>
       <div class="actions">
-        <button class="btn-secondary" onclick="goBack(2)">← Back</button>
-        <button class="btn-primary" onclick="goNext(2)">Next →</button>
+        <button type="button" class="btn-secondary" onclick="goBack(2)">&larr; Back</button>
+        <button type="button" class="btn-primary" onclick="goNext(2)">Next &rarr;</button>
       </div>
     </div>
 
@@ -418,39 +405,38 @@
       <h1>How did you hear about LASERLY, or which materials are you requesting?</h1>
       <p class="sub">If a specific intro or pitch event is the reason, please mention it here.</p>
       <div class="form-group">
-        <textarea id="context" maxlength="300" placeholder="e.g. introduction from [name], NorthInvest pitch night, deck on request..."></textarea>
+        <textarea id="context" name="intro_context" maxlength="300" placeholder="e.g. introduction from [name], NorthInvest pitch night, deck on request..."></textarea>
         <div class="char-count"><span id="contextCount">0</span>/300</div>
       </div>
       <div class="actions">
-        <button class="btn-secondary" onclick="goBack(3)">← Back</button>
-        <button class="btn-primary" onclick="goNext(3)">Next →</button>
+        <button type="button" class="btn-secondary" onclick="goBack(3)">&larr; Back</button>
+        <button type="button" class="btn-primary" onclick="goNext(3)">Next &rarr;</button>
       </div>
     </div>
 
     <!-- STEP 4: FCA -->
     <div class="step" data-step="4">
-      <h1>Financial Conduct Authority investor requirements <span class="req">*</span></h1>
-      <p class="sub">High-Net-Worth or Sophisticated Investor self-certification.<br>Please select ALL that have applied to you in the last 24 months.</p>
+      <h1>Financial Conduct Authority investor requirements</h1>
+      <p class="sub">High-Net-Worth or Sophisticated Investor self-certification.<br>Please select any that have applied to you in the last 24 months.</p>
       <div class="check-list" id="fcaList">
-        <label class="check-item"><input type="checkbox" value="pe" class="fca-cb">
+        <label class="check-item"><input type="checkbox" name="investor_type" value="Worked in private equity, or in the provision of finance for SMEs" class="fca-cb">
           <span class="ctext">Worked in private equity, or in the provision of finance for small and medium enterprises.</span></label>
-        <label class="check-item"><input type="checkbox" value="director" class="fca-cb">
-          <span class="ctext">Been the director of a company with an annual turnover of at least £1 million.</span></label>
-        <label class="check-item"><input type="checkbox" value="multi-invest" class="fca-cb">
+        <label class="check-item"><input type="checkbox" name="investor_type" value="Director of a company with annual turnover of at least &pound;1 million" class="fca-cb">
+          <span class="ctext">Been the director of a company with an annual turnover of at least &pound;1 million.</span></label>
+        <label class="check-item"><input type="checkbox" name="investor_type" value="Made two or more investments in an unlisted company" class="fca-cb">
           <span class="ctext">Made two or more investments in an unlisted company.</span></label>
-        <label class="check-item"><input type="checkbox" value="angel-network" class="fca-cb">
+        <label class="check-item"><input type="checkbox" name="investor_type" value="Member of a business-angel network or syndicate for 6+ months" class="fca-cb">
           <span class="ctext">Been a member of a network or syndicate of business angels for more than six months.</span></label>
-        <label class="check-item"><input type="checkbox" value="income" class="fca-cb">
-          <span class="ctext">Had an annual income of £170,000 or more (excluding one-off pension payments).</span></label>
-        <label class="check-item"><input type="checkbox" value="assets" class="fca-cb">
-          <span class="ctext">Had net assets of £430,000 or more (excluding primary residence, pension, and contracts of insurance).</span></label>
-        <label class="check-item"><input type="checkbox" value="none" class="fca-cb" id="fcaNone">
+        <label class="check-item"><input type="checkbox" name="investor_type" value="Annual income of &pound;170,000 or more" class="fca-cb">
+          <span class="ctext">Had an annual income of &pound;170,000 or more (excluding one-off pension payments).</span></label>
+        <label class="check-item"><input type="checkbox" name="investor_type" value="Net assets of &pound;430,000 or more" class="fca-cb">
+          <span class="ctext">Had net assets of &pound;430,000 or more (excluding primary residence, pension, and contracts of insurance).</span></label>
+        <label class="check-item"><input type="checkbox" name="investor_type" value="None of the above" class="fca-cb" id="fcaNone">
           <span class="ctext">None of the above.</span></label>
       </div>
-      <div class="field-error" id="err-fca">Please select at least one option.</div>
       <div class="actions">
-        <button class="btn-secondary" onclick="goBack(4)">← Back</button>
-        <button class="btn-primary" onclick="goNext(4)">Next →</button>
+        <button type="button" class="btn-secondary" onclick="goBack(4)">&larr; Back</button>
+        <button type="button" class="btn-primary" onclick="goNext(4)">Next &rarr;</button>
       </div>
     </div>
 
@@ -459,16 +445,16 @@
       <h1>What is your typical investment ticket size?</h1>
       <p class="sub">Approximate range and preferred currency.</p>
       <div class="form-group">
-        <textarea id="ticket" maxlength="300" placeholder="e.g. £25k to £50k under SEIS / EIS"></textarea>
+        <textarea id="ticket" name="ticket_size" maxlength="300" placeholder="e.g. &pound;25k to &pound;50k under SEIS / EIS"></textarea>
         <div class="char-count"><span id="ticketCount">0</span>/300</div>
       </div>
       <div class="actions">
-        <button class="btn-secondary" onclick="goBack(5)">← Back</button>
-        <button class="btn-primary" onclick="goNext(5)">Next →</button>
+        <button type="button" class="btn-secondary" onclick="goBack(5)">&larr; Back</button>
+        <button type="button" class="btn-primary" onclick="goNext(5)">Next &rarr;</button>
       </div>
     </div>
 
-    <!-- STEP 6: SIGNATURE -->
+    <!-- STEP 6: SIGNATURE + CONSENT -->
     <div class="step" data-step="6">
       <h1>Please sign here <span class="req">*</span></h1>
       <p class="sub">To confirm your submission and self-certification.</p>
@@ -477,30 +463,36 @@
         <div class="sig-hint" id="sigHint">Sign with your mouse, trackpad or finger</div>
       </div>
       <div class="sig-actions">
-        <button class="clear-link" onclick="clearSig()">Clear signature</button>
+        <button type="button" class="clear-link" onclick="clearSig()">Clear signature</button>
         <span class="help">By signing, you confirm the above is accurate.</span>
       </div>
       <div class="field-error" id="err-sig" style="margin-top: 12px;">Please sign before submitting.</div>
+
+      <div class="check-list" style="margin-top: 24px;">
+        <label class="check-item" id="consentItem">
+          <input type="checkbox" name="consent" value="yes" id="consent" required>
+          <span class="ctext">I confirm the information above is accurate and consent to LASERLY contacting me about this opportunity. <span class="req">*</span></span>
+        </label>
+      </div>
+      <div class="field-error" id="err-consent">Please confirm to submit.</div>
+
       <div class="actions" style="margin-top: 24px;">
-        <button class="btn-secondary" onclick="goBack(6)">← Back</button>
-        <button class="btn-primary" onclick="submitForm()">Submit ✓</button>
+        <button type="button" class="btn-secondary" onclick="goBack(6)">&larr; Back</button>
+        <button type="button" class="btn-primary" id="submitBtn" onclick="submitForm()">Submit &check;</button>
       </div>
     </div>
 
     <!-- STEP 7: THANKS -->
     <div class="step" data-step="7">
       <div class="thanks">
-        <div class="check-circle">✓</div>
+        <div class="check-circle">&check;</div>
         <h1>Thank you.</h1>
-        <p>Your self-certification has been recorded.</p>
-        <p>Your default mail client should have opened with a pre-filled email to LASERLY.<br>If it did not, please copy the details below and email them to <strong>jay@laserly.tech</strong>.</p>
-        <div class="summary" id="summary"></div>
-        <div class="actions" style="justify-content: center; margin-top: 28px;">
-          <button class="btn-primary" onclick="copySummary()">Copy details to clipboard</button>
-        </div>
+        <p>We have received your interest and will be in touch shortly.</p>
+        <div class="field-error" id="err-submit" style="margin-top: 16px; text-align: center;"></div>
       </div>
     </div>
 
+  </form>
   </div>
 </div>
 
@@ -526,9 +518,7 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function goBack(from) {
-    showStep(from - 1);
-  }
+  function goBack(from) { showStep(from - 1); }
 
   function goNext(from) {
     if (!validateStep(from)) return;
@@ -547,11 +537,7 @@
       document.getElementById('err-email').classList.toggle('show', !emailOk);
       ok = fn && ln && emailOk;
     }
-    if (n === 4) {
-      const any = document.querySelectorAll('.fca-cb:checked').length > 0;
-      document.getElementById('err-fca').classList.toggle('show', !any);
-      ok = any;
-    }
+    // Investor type (FCA) is OPTIONAL per spec — no validation on step 4.
     return ok;
   }
 
@@ -579,6 +565,12 @@
         none.closest('.check-item').classList.remove('checked');
       }
     });
+  });
+
+  // Consent toggle UX
+  document.getElementById('consent').addEventListener('change', e => {
+    document.getElementById('consentItem').classList.toggle('checked', e.target.checked);
+    if (e.target.checked) document.getElementById('err-consent').classList.remove('show');
   });
 
   // Enter key advances
@@ -646,7 +638,6 @@
     sigDrawn = false;
     sigHint.style.display = 'block';
   }
-  // Resize when step 6 is shown
   const obs = new MutationObserver(() => {
     if (document.querySelector('.step[data-step="6"]').classList.contains('active')) {
       setTimeout(resizeCanvas, 50);
@@ -654,55 +645,66 @@
   });
   obs.observe(document.querySelector('.step[data-step="6"]'), { attributes: true });
 
-  let lastSummaryText = '';
-
-  function submitForm() {
+  async function submitForm() {
+    // Signature still required (kept from original design)
     if (!sigDrawn) {
       document.getElementById('err-sig').classList.add('show');
       return;
     }
     document.getElementById('err-sig').classList.remove('show');
 
-    const data = {
-      'First name': document.getElementById('firstName').value.trim(),
-      'Last name': document.getElementById('lastName').value.trim(),
-      'Email': document.getElementById('email').value.trim(),
-      'Company': document.getElementById('company').value.trim() || '(not provided)',
-      'Sector preference': document.getElementById('sector').value.trim() || '(not provided)',
-      'Context / introduction': document.getElementById('context').value.trim() || '(not provided)',
-      'FCA self-certification': [...document.querySelectorAll('.fca-cb:checked')].map(cb => cb.parentElement.querySelector('.ctext').textContent.trim()).join('; ') || '(none)',
-      'Typical ticket size': document.getElementById('ticket').value.trim() || '(not provided)',
-      'Signed': 'Yes, signature captured on ' + new Date().toLocaleString(),
-    };
+    // Consent — required per spec
+    const consent = document.getElementById('consent').checked;
+    document.getElementById('err-consent').classList.toggle('show', !consent);
+    if (!consent) return;
 
-    // Render summary
-    const sumEl = document.getElementById('summary');
-    sumEl.innerHTML = '<h3>Submission summary</h3>' + Object.entries(data).map(([k, v]) =>
-      '<div class="row"><div class="lbl">' + k + '</div><div class="val">' + escapeHtml(v) + '</div></div>'
-    ).join('');
+    // Populate hidden combined fields before POST
+    const fn = document.getElementById('firstName').value.trim();
+    const ln = document.getElementById('lastName').value.trim();
+    document.getElementById('full_name').value = (fn + ' ' + ln).trim();
 
-    lastSummaryText = 'LASERLY Investor Self-Certification\n\n' +
-      Object.entries(data).map(([k, v]) => k + ': ' + v).join('\n');
+    const sector  = document.getElementById('sector').value.trim();
+    const context = document.getElementById('context').value.trim();
+    const ticket  = document.getElementById('ticket').value.trim();
+    const parts = [];
+    if (sector)  parts.push('Sector preference: ' + sector);
+    if (context) parts.push('Intro / context: ' + context);
+    if (ticket)  parts.push('Ticket size: ' + ticket);
+    document.getElementById('message').value = parts.join('\n\n');
 
-    const subject = 'LASERLY Investor self-certification, ' + data['First name'] + ' ' + data['Last name'];
-    const body = lastSummaryText;
-    const mailto = 'mailto:jay@laserly.tech?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    window.location = mailto;
+    try {
+      document.getElementById('signature_data').value = canvas.toDataURL('image/png');
+    } catch (e) { /* canvas tainted — skip */ }
 
-    showStep(7);
-  }
+    const form = document.getElementById('investorForm');
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
-  function copySummary() {
-    navigator.clipboard.writeText(lastSummaryText).then(() => {
-      const btn = event.target;
-      const orig = btn.textContent;
-      btn.textContent = 'Copied ✓';
-      setTimeout(() => { btn.textContent = orig; }, 2000);
-    });
+    try {
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      if (resp.ok) {
+        showStep(7);
+      } else {
+        const data = await resp.json().catch(() => ({}));
+        const msg = (data.errors && data.errors.map(e => e.message).join(', ')) ||
+                    'Submission failed. Please email jay@laserly.tech directly.';
+        document.getElementById('err-submit').textContent = msg;
+        document.getElementById('err-submit').classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit ✓';
+      }
+    } catch (err) {
+      document.getElementById('err-submit').textContent =
+        'Network error. Please email jay@laserly.tech directly.';
+      document.getElementById('err-submit').classList.add('show');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit ✓';
+    }
   }
 
   updateProgress();
