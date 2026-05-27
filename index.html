@@ -589,15 +589,25 @@
   const sigHint = document.getElementById('sigHint');
   let drawing = false;
   let sigDrawn = false;
+  let cssW = 0, cssH = 0;
+  let sigDpr = 1;
+  // Track bounding box of drawn ink for crop-on-export
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    sigDpr = window.devicePixelRatio || 1;
+    cssW = rect.width;
+    cssH = rect.height;
+    canvas.width = cssW * sigDpr;
+    canvas.height = cssH * sigDpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(sigDpr, sigDpr);
+    // White background so the exported PNG is not transparent
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, cssW, cssH);
     ctx.strokeStyle = '#0A1628';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
   }
@@ -608,12 +618,19 @@
     }
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
+  function trackPoint(p) {
+    if (p.x < minX) minX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+  }
   function startDraw(e) {
     e.preventDefault();
     drawing = true;
     sigDrawn = true;
     sigHint.style.display = 'none';
     const p = getPos(e);
+    trackPoint(p);
     ctx.beginPath();
     ctx.moveTo(p.x, p.y);
   }
@@ -621,6 +638,7 @@
     if (!drawing) return;
     e.preventDefault();
     const p = getPos(e);
+    trackPoint(p);
     ctx.lineTo(p.x, p.y);
     ctx.stroke();
   }
@@ -634,9 +652,38 @@
   canvas.addEventListener('touchend', endDraw);
 
   function clearSig() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Repaint white in CSS-pixel space (transform is already scaled by dpr)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, cssW, cssH);
+    ctx.strokeStyle = '#0A1628';
     sigDrawn = false;
+    minX = Infinity; minY = Infinity; maxX = -Infinity; maxY = -Infinity;
     sigHint.style.display = 'block';
+  }
+
+  // Crop the canvas to the drawn bounding box (in device pixels) + small padding,
+  // then export as PNG with a white background. Falls back to full canvas if anything fails.
+  function exportSignaturePng() {
+    try {
+      if (!isFinite(minX)) return canvas.toDataURL('image/png');
+      const pad = 12; // CSS px around the ink
+      const x0 = Math.max(0, Math.floor((minX - pad) * sigDpr));
+      const y0 = Math.max(0, Math.floor((minY - pad) * sigDpr));
+      const x1 = Math.min(canvas.width,  Math.ceil((maxX + pad) * sigDpr));
+      const y1 = Math.min(canvas.height, Math.ceil((maxY + pad) * sigDpr));
+      const w = Math.max(1, x1 - x0);
+      const h = Math.max(1, y1 - y0);
+      const off = document.createElement('canvas');
+      off.width = w;
+      off.height = h;
+      const octx = off.getContext('2d');
+      octx.fillStyle = '#FFFFFF';
+      octx.fillRect(0, 0, w, h);
+      octx.drawImage(canvas, x0, y0, w, h, 0, 0, w, h);
+      return off.toDataURL('image/png');
+    } catch (e) {
+      return canvas.toDataURL('image/png');
+    }
   }
   const obs = new MutationObserver(() => {
     if (document.querySelector('.step[data-step="6"]').classList.contains('active')) {
@@ -673,7 +720,7 @@
     document.getElementById('message').value = parts.join('\n\n');
 
     try {
-      document.getElementById('signature_data').value = canvas.toDataURL('image/png');
+      document.getElementById('signature_data').value = exportSignaturePng();
     } catch (e) { /* canvas tainted — skip */ }
 
     const form = document.getElementById('investorForm');
